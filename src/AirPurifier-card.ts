@@ -32,7 +32,7 @@ console.info(
   description: 'A card that visualises the state of your Xiaomi Air Purifier',
 });
 
-// TODO Name your custom element
+// Name of the custom element
 @customElement('airpurifier-card')
 export class AirPurifierCard extends LitElement {
   public static async getConfigElement(): Promise<LovelaceCardEditor> {

@@ -4,6 +4,6 @@ resources:
 views:
   - cards:
       - type: custom:AirPurifier-card
-        name: Boilerplate Card Development
+        name: Air Purifier Card Development
         entity: sun.sun
         test_gui: true
