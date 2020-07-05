@@ -44,6 +44,8 @@ export class AirPurifierCard extends LitElement {
     return {};
   }
 
+  public entity!: EntityType;
+
   // TODO Add any properities that should cause your element to re-render here
   @property() public hass!: HomeAssistant;
   @property() private _config!: AirPurifierCardConfig;
@@ -217,7 +219,7 @@ export class AirPurifierCard extends LitElement {
         tabindex="0"
         aria-label=${`AirPurifier: ${this._config.entity}`}
       >
-        <div class="preview ${off && 'idle'}" @click="${e => this.handleMore()}" ?more-info="true">
+        <div class="preview ${'off' && 'idle'}" @click="${e => this.handleMore()}" ?more-info="true">
           <div class="current-aqi">
             <sup>AQI</sup>
           </div>
