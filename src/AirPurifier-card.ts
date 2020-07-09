@@ -119,15 +119,17 @@ export class AirPurifierCard extends LitElement {
   //}
 
   renderStats() {
-    //const {
-    //  attributes: { filter_life_remaining, motor_speed },
-    //} = this.entity;
+    const {
+      attributes: { filter_life_remaining, motor_speed },
+    } = this.entity;
 
     return html`
       <div class="stats-block">
+        <span class="stats-hours">${filter_life_remaining}</span> <sup>%</sup>
         <div class="stats-subtitle">Filter remaining</div>
       </div>
       <div class="stats-block">
+        <span class="stats-hours">${motor_speed}</span> <sup>RPM</sup>
         <div class="stats-subtitle">Motor speed</div>
       </div>
     `;
