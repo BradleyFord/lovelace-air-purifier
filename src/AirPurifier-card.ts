@@ -44,23 +44,28 @@ export class AirPurifierCard extends LitElement {
     return {};
   }
 
-  public entity!: EntityType;
-
   // TODO Add any properities that should cause your element to re-render here
   @property() public hass!: HomeAssistant;
-  @property() private _config!: AirPurifierCardConfig;
+  @property() private config!: AirPurifierCardConfig;
+
+  //entityId = this._config.entity;
+  public entity!: any;
 
   public setConfig(config: AirPurifierCardConfig): void {
-    // TODO Check for required fields and that they are of the proper format
+    // TODO Check for required fields and that they are of the proper formatw
     if (!config || config.show_error) {
       throw new Error(localize('common.invalid_configuration'));
+    }
+
+    if (!config.entity) {
+      throw new Error('Please define a Air Purifier entity');
     }
 
     if (config.test_gui) {
       getLovelace().setEditMode(true);
     }
 
-    this._config = {
+    this.config = {
       name: 'AirPurifier',
       ...config,
     };
@@ -85,14 +90,14 @@ export class AirPurifierCard extends LitElement {
 
   callService(service, options = {}) {
     this.hass.callService('fan', service, {
-      entity_id: this._config.entity,
+      entity_id: this.config.entity,
       ...options,
     });
   }
 
   callXiaomiService(service, options = {}) {
     this.hass.callService('xiaomi_miio', service, {
-      entity_id: this._config.entity,
+      entity_id: this.config.entity,
       ...options,
     });
   }
@@ -114,17 +119,15 @@ export class AirPurifierCard extends LitElement {
   //}
 
   renderStats() {
-    const {
-      attributes: { filter_life_remaining, motor_speed },
-    } = this.entity;
+    //const {
+    //  attributes: { filter_life_remaining, motor_speed },
+    //} = this.entity;
 
     return html`
       <div class="stats-block">
-        <span class="stats-hours">${filter_life_remaining}</span> <sup>%</sup>
         <div class="stats-subtitle">Filter remaining</div>
       </div>
       <div class="stats-block">
-        <span class="stats-hours">${motor_speed}</span> <sup>RPM</sup>
         <div class="stats-subtitle">Motor speed</div>
       </div>
     `;
@@ -141,85 +144,43 @@ export class AirPurifierCard extends LitElement {
   }
 
   renderToolbar() {
-    const {
-      state,
-      attributes: { favorite_level, mode },
-    } = this.entity;
+    //const {
+    //  state,
+    //  attributes: { favorite_level, mode },
+    //} = this.entity;
 
     return html`
       <div class="toolbar">
-        <ha-icon-button
-          icon="mdi:power-standby"
-          title="Power"
-          class="toolbar-split toolbar-item ${state == 'on' && 'toolbar-item-on'}"
-          @click="${e => this.callService('toggle')}"
-        >
-        </ha-icon-button>
+        <ha-icon-button icon="mdi:power-standby" title="Power"> </ha-icon-button>
         <div class="fill-gap"></div>
-        <ha-icon-button
-          icon="mdi:weather-night"
-          title="Sleep"
-          class="toolbar-item ${mode == 'silent' && 'toolbar-item-on'}"
-          @click="${e => this.callService('set_speed', { speed: 'Silent' })}"
-        >
-        </ha-icon-button>
-        <ha-icon-button
-          icon="mdi:circle-slice-3"
-          title="30%"
-          class="toolbar-item ${mode == 'favorite' && favorite_level == 3 && 'toolbar-item-on'}"
-          @click="${e => this.setFavorite(3)}"
-        >
-        </ha-icon-button>
-        <ha-icon-button
-          icon="mdi:circle-slice-4"
-          title="50%"
-          class="toolbar-item ${mode == 'favorite' && favorite_level == 6 && 'toolbar-item-on'}"
-          @click="${e => this.setFavorite(6)}"
-        >
-        </ha-icon-button>
-        <ha-icon-button
-          icon="mdi:circle-slice-6"
-          title="70%"
-          class="toolbar-item ${mode == 'favorite' && favorite_level == 8 && 'toolbar-item-on'}"
-          @click="${e => this.setFavorite(8)}"
-        >
-        </ha-icon-button>
-        <ha-icon-button
-          icon="mdi:circle-slice-8"
-          title="100%"
-          class="toolbar-item ${mode == 'favorite' && favorite_level == 12 && 'toolbar-item-on'}"
-          @click="${e => this.setFavorite(12)}"
-        >
-        </ha-icon-button>
-        <ha-icon-button
-          icon="mdi:brightness-auto"
-          title="Auto"
-          class="toolbar-item ${mode == 'auto' && 'toolbar-item-on'}"
-          @click="${e => this.callService('set_speed', { speed: 'Auto' })}"
-        >
-        </ha-icon-button>
+        <ha-icon-button icon="mdi:weather-night" title="Sleep"> </ha-icon-button>
+        <ha-icon-button icon="mdi:circle-slice-3" title="30%"> </ha-icon-button>
+        <ha-icon-button icon="mdi:circle-slice-4" title="50%"> </ha-icon-button>
+        <ha-icon-button icon="mdi:circle-slice-6" title="70%"> </ha-icon-button>
+        <ha-icon-button icon="mdi:circle-slice-8" title="100%"> </ha-icon-button>
+        <ha-icon-button icon="mdi:brightness-auto" title="Auto"> </ha-icon-button>
       </div>
     `;
   }
 
   protected render(): TemplateResult | void {
     // TODO Check for stateObj or other necessary things and render a warning if missing
-    if (this._config.show_warning) {
+    if (this.config.show_warning) {
       return this.showWarning(localize('common.show_warning'));
     }
 
     return html`
       <ha-card
-        .header=${this._config.name}
+        .header=${this.config.name}
         @action=${this._handleAction}
         .actionHandler=${actionHandler({
-          hasHold: hasAction(this._config.hold_action),
-          hasDoubleClick: hasAction(this._config.double_tap_action),
+          hasHold: hasAction(this.config.hold_action),
+          hasDoubleClick: hasAction(this.config.double_tap_action),
         })}
         tabindex="0"
-        aria-label=${`AirPurifier: ${this._config.entity}`}
+        aria-label=${`AirPurifier: ${this.config.entity}`}
       >
-        <div class="preview ${'off' && 'idle'}" @click="${e => this.handleMore()}" ?more-info="true">
+        <div class="preview ${'off' && 'idle'}">
           <div class="current-aqi">
             <sup>AQI</sup>
           </div>
@@ -232,8 +193,8 @@ export class AirPurifierCard extends LitElement {
   }
 
   private _handleAction(ev: ActionHandlerEvent): void {
-    if (this.hass && this._config && ev.detail.action) {
-      handleAction(this, this.hass, this._config, ev.detail.action);
+    if (this.hass && this.config && ev.detail.action) {
+      handleAction(this, this.hass, this.config, ev.detail.action);
     }
   }
 
@@ -248,7 +209,7 @@ export class AirPurifierCard extends LitElement {
     errorCard.setConfig({
       type: 'error',
       error,
-      origConfig: this._config,
+      origConfig: this.config,
     });
 
     return html`
